@@ -5,8 +5,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, Normalizer
 from neupy import algorithms, estimators, environment, layers
 from sklearn import metrics
-from sklearn.model_selection import cross_validate
-from sklearn.model_selection import cross_val_predict
 
 df = pd.read_csv("OnlineNewsPopularity.csv")
 
@@ -28,28 +26,21 @@ data_norm = StandardScaler().fit_transform(data)
 
 
 
-grnnet = algorithms.GRNN(std=0.5, verbose=True)
-scoring = ['precision_macro', 'recall_macro']
-
-predicted = cross_val_predict(grnnet, data_norm, target, cv=5)
-clean = np.nan_to_num(predicted)
-
-error = estimators.rmse(target, clean)
-
-error
+x_train, x_test, y_train, y_test = train_test_split(data_norm, target, test_size=0.3)
 
 
-'''
-if np.isnan(result).any():
-    clean = np.nan_to_num(result)
+pnn_network = algorithms.PNN(std=0.1, verbose=True)
+pnn_network.train(x_train, y_train)
+
+result = pnn_network.predict(x_test)
 
 
-error = estimators.rmse(clean, y_test)
+error = estimators.rmse(result, y_test)
 
 print("GRNN RMSE = {}\n".format(error))
 
-r2_score = metrics.r2_score(clean, y_test)
+r2_score = metrics.r2_score(result, y_test)
 
 print("GRNN R_SCORE = {}\n".format(r2_score))
 
-'''
+
